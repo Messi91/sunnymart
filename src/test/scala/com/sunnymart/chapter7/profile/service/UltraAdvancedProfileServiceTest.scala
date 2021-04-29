@@ -11,9 +11,12 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 import java.util.UUID
+import scala.concurrent.duration._
 import scala.concurrent.Future
 
 class UltraAdvancedProfileServiceTest extends AnyFlatSpec with ScalaFutures with Matchers with MockitoSugar {
+
+  implicit val defaultPatience: PatienceConfig = PatienceConfig(timeout = 2.seconds, interval = 500.millis)
 
   private val database = mock[ProfileStore]
   private val uuidGenerator = mock[UUIDGenerator]

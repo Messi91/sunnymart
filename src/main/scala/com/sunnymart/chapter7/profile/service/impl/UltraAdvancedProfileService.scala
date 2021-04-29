@@ -6,12 +6,14 @@ import com.sunnymart.chapter7.profile.service.validation.Validator._
 import com.sunnymart.chapter7.profile.domain._
 import com.sunnymart.chapter7.profile.storage.ProfileStore
 import com.sunnymart.chapter7.profile.uuid.UUIDGenerator
-
 import java.util.UUID
+
+import com.sunnymart.chapter7.profile.service.BetterProfileService
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class UltraAdvancedProfileService(database: ProfileStore, uuidGenerator: UUIDGenerator) {
+class UltraAdvancedProfileService(database: ProfileStore, uuidGenerator: UUIDGenerator) extends BetterProfileService {
 
   def createProfile(create: CreateProfile): Future[Either[NonEmptyList[ProfileServiceError], Profile]] = {
     (for {
