@@ -1,0 +1,9 @@
+package com.sunnymart.chapter4.profile.domain
+
+sealed trait ProfileServiceError extends Exception
+case object InvalidName extends ProfileServiceError
+case object InvalidDate extends ProfileServiceError
+case object InvalidEmail extends ProfileServiceError
+case object DuplicateEmail extends ProfileServiceError
+case object ProfileNotFound extends ProfileServiceError
+case object UnknownError extends ProfileServiceError
