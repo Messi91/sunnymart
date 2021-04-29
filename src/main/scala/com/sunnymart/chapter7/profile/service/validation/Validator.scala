@@ -17,9 +17,9 @@ object Validator {
     Either.cond(email.matches("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"), email, InvalidEmail)
   }
 
-  def validateOpt(optValue: Option[String], defaultValue: String)(func: String => Either[ProfileServiceError, String]): Either[ProfileServiceError, String] = {
+  def validateOpt(optValue: Option[String], defaultValue: String)(validate: String => Either[ProfileServiceError, String]): Either[ProfileServiceError, String] = {
     optValue
-      .map(value => func(value))
+      .map(value => validate(value))
       .getOrElse(Right(defaultValue))
   }
 
