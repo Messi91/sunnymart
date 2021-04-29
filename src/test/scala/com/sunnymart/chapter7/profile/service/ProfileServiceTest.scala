@@ -1,11 +1,9 @@
-package com.sunnymart.chapter4.profile.service
+package com.sunnymart.chapter7.profile.service
 
-import cats.data.NonEmptyList
-import com.sunnymart.chapter4.profile.domain
-import com.sunnymart.chapter4.profile.domain.{CreateProfile, DuplicateEmail, InvalidDate, InvalidEmail, InvalidName, Profile, ProfileNotFound, UpdateProfile}
-import com.sunnymart.chapter4.profile.service.impl.UltraAdvancedProfileService
-import com.sunnymart.chapter4.profile.storage.ProfileStore
-import com.sunnymart.chapter4.profile.uuid.UUIDGenerator
+import com.sunnymart.chapter7.profile.domain._
+import com.sunnymart.chapter7.profile.service.impl.AdvancedProfileService
+import com.sunnymart.chapter7.profile.storage.ProfileStore
+import com.sunnymart.chapter7.profile.uuid.UUIDGenerator
 import org.mockito.scalatest.MockitoSugar
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.flatspec.AnyFlatSpec
@@ -14,23 +12,62 @@ import org.scalatest.matchers.should.Matchers
 import java.util.UUID
 import scala.concurrent.Future
 
-class UltraAdvancedProfileServiceTest extends AnyFlatSpec with ScalaFutures with Matchers with MockitoSugar {
+class ProfileServiceTest extends AnyFlatSpec with ScalaFutures with Matchers with MockitoSugar {
 
   private val database = mock[ProfileStore]
   private val uuidGenerator = mock[UUIDGenerator]
-  private val service = new UltraAdvancedProfileService(database, uuidGenerator)
+  private val service = new AdvancedProfileService(database, uuidGenerator)
 
-  it should "reject a profile creation attempt with invalid data" in {
+  it should "reject a profile creation attempt with an invalid first name" in {
     val request = CreateProfile(
       firstName = "",
+      lastName = "Mathau",
+      dateOfBirth = "1991-02-09",
+      emailAddress = "charles.mathau@gmail.com"
+    )
+
+    when(database.getByEmail("charles.mathau@gmail.com")).thenReturn(Future.successful(None))
+
+    service.createProfile(request).futureValue should be (Left(InvalidName))
+  }
+
+  it should "reject a profile creation attempt with an invalid last name" in {
+    val request = CreateProfile(
+      firstName = "Charles",
       lastName = "",
+      dateOfBirth = "1991-02-09",
+      emailAddress = "charles.mathau@gmail.com"
+    )
+
+    when(database.getByEmail("charles.mathau@gmail.com")).thenReturn(Future.successful(None))
+
+    service.createProfile(request).futureValue should be (Left(InvalidName))
+  }
+
+  it should "reject a profile creation attempt with an invalid date" in {
+    val request = CreateProfile(
+      firstName = "Charles",
+      lastName = "Mathau",
       dateOfBirth = "February 9th, 1991",
+      emailAddress = "charles.mathau@gmail.com"
+    )
+
+    when(database.getByEmail("charles.mathau@gmail.com")).thenReturn(Future.successful(None))
+
+    service.createProfile(request).futureValue should be (Left(InvalidDate))
+  }
+
+  it should "reject a profile creation attempt with an invalid email" in {
+    val request = CreateProfile(
+      firstName = "Charles",
+      lastName = "Mathau",
+      dateOfBirth = "1991-02-09",
       emailAddress = "charles.mathau.gmail.com"
     )
 
     when(database.getByEmail("charles.mathau.gmail.com")).thenReturn(Future.successful(None))
 
-    service.createProfile(request).futureValue should be (Left(NonEmptyList.of(InvalidName, InvalidName, InvalidDate, InvalidEmail)))
+    service.createProfile(request).futureValue should be (Left(InvalidEmail))
   }
 
   it should "reject a profile creation attempt with a duplicate email" in {
@@ -42,15 +79,15 @@ class UltraAdvancedProfileServiceTest extends AnyFlatSpec with ScalaFutures with
       emailAddress = "charles.mathau@gmail.com"
     )
     val request = CreateProfile(
-      firstName = "",
-      lastName = "",
-      dateOfBirth = "February 9th, 1991",
+      firstName = "Charles",
+      lastName = "Mathau",
+      dateOfBirth = "1991-02-09",
       emailAddress = "charles.mathau@gmail.com"
     )
 
     when(database.getByEmail("charles.mathau@gmail.com")).thenReturn(Future.successful(Some(existing)))
 
-    service.createProfile(request).futureValue should be (Left(NonEmptyList.of(InvalidName, InvalidName, InvalidDate, DuplicateEmail)))
+    service.createProfile(request).futureValue should be (Left(DuplicateEmail))
   }
 
   it should "handle a profile creation attempt with a failed database transaction" in {
@@ -72,7 +109,7 @@ class UltraAdvancedProfileServiceTest extends AnyFlatSpec with ScalaFutures with
     when(database.getByEmail("charles.mathau@gmail.com")).thenReturn(Future.successful(None))
     when(database.insert(expected)).thenReturn(Future.failed(new Exception))
 
-    service.createProfile(request).futureValue should be (Left(NonEmptyList.of(domain.UnknownError)))
+    service.createProfile(request).futureValue should be (Left(UnknownError))
   }
 
   it should "create a new user profile with valid data" in {
@@ -108,7 +145,7 @@ class UltraAdvancedProfileServiceTest extends AnyFlatSpec with ScalaFutures with
 
     when(database.get(id)).thenReturn(Future.successful(None))
 
-    service.updateProfile(id, request).futureValue should be (Left(NonEmptyList.of(ProfileNotFound)))
+    service.updateProfile(id, request).futureValue should be (Left(ProfileNotFound))
   }
 
   it should "reject a profile update attempt with invalid data" in {
@@ -130,36 +167,29 @@ class UltraAdvancedProfileServiceTest extends AnyFlatSpec with ScalaFutures with
     when(database.get(id)).thenReturn(Future.successful(Some(existing)))
     when(database.getByEmail("charles.mathau.outlook.com")).thenReturn(Future.successful(None))
 
-    service.updateProfile(id, request).futureValue should be (Left(NonEmptyList.of(InvalidName, InvalidName, InvalidDate, InvalidEmail)))
+    service.updateProfile(id, request).futureValue should be (Left(InvalidName))
   }
 
   it should "reject a profile update attempt with a duplicate email" in {
     val id = UUID.randomUUID()
-    val toBeUpdated = Profile(
-      id = id,
+    val existing = Profile(
+      id = UUID.randomUUID(),
       firstName = "Charles",
       lastName = "Mathau",
       dateOfBirth = "1991-02-09",
       emailAddress = "charles.mathau@gmail.com"
     )
-    val otherProfile = Profile(
-      id = UUID.randomUUID(),
-      firstName = "Charles",
-      lastName = "Mathau",
-      dateOfBirth = "1991-02-09",
-      emailAddress = "charles.mathau@outlook.com"
-    )
     val request = UpdateProfile(
-      firstName = Some(""),
-      lastName = Some(""),
-      dateOfBirth = Some("February 9th, 1991"),
-      emailAddress = Some("charles.mathau@outlook.com")
+      firstName = None,
+      lastName = None,
+      dateOfBirth = None,
+      emailAddress = Some("charles.mathau@gmail.com")
     )
 
-    when(database.get(id)).thenReturn(Future.successful(Some(toBeUpdated)))
-    when(database.getByEmail("charles.mathau@outlook.com")).thenReturn(Future.successful(Some(otherProfile)))
+    when(database.get(id)).thenReturn(Future.successful(Some(existing)))
+    when(database.getByEmail("charles.mathau@gmail.com")).thenReturn(Future.successful(Some(existing)))
 
-    service.updateProfile(id, request).futureValue should be (Left(NonEmptyList.of(InvalidName, InvalidName, InvalidDate, DuplicateEmail)))
+    service.updateProfile(id, request).futureValue should be (Left(DuplicateEmail))
   }
 
   it should "handle a profile update attempt with a failed database transaction" in {
@@ -185,7 +215,7 @@ class UltraAdvancedProfileServiceTest extends AnyFlatSpec with ScalaFutures with
     when(database.getByEmail("charles.mathau@outlook.com")).thenReturn(Future.successful(None))
     when(database.update(id, expected)).thenReturn(Future.failed(new Exception))
 
-    service.updateProfile(id, request).futureValue should be (Left(NonEmptyList.of(domain.UnknownError)))
+    service.updateProfile(id, request).futureValue should be (Left(UnknownError))
   }
 
   it should "update an existing user profile with valid data" in {

@@ -1,4 +1,4 @@
-package com.sunnymart.chapter4.profile.domain
+package com.sunnymart.chapter7.profile.domain
 
 case class CreateProfile(
   firstName: String,

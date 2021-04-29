@@ -1,11 +1,11 @@
-package com.sunnymart.chapter4.profile.service.impl
+package com.sunnymart.chapter7.profile.service.impl
 
 import cats.data.EitherT
-import com.sunnymart.chapter4.profile.service.validation.Validator._
-import com.sunnymart.chapter4.profile.domain._
-import com.sunnymart.chapter4.profile.service.ProfileService
-import com.sunnymart.chapter4.profile.storage.ProfileStore
-import com.sunnymart.chapter4.profile.uuid.UUIDGenerator
+import com.sunnymart.chapter7.profile.service.validation.Validator._
+import com.sunnymart.chapter7.profile.domain._
+import com.sunnymart.chapter7.profile.service.ProfileService
+import com.sunnymart.chapter7.profile.storage.ProfileStore
+import com.sunnymart.chapter7.profile.uuid.UUIDGenerator
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global

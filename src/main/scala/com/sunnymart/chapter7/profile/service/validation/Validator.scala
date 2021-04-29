@@ -1,6 +1,6 @@
-package com.sunnymart.chapter4.profile.service.validation
+package com.sunnymart.chapter7.profile.service.validation
 
-import com.sunnymart.chapter4.profile.domain._
+import com.sunnymart.chapter7.profile.domain._
 
 import java.util.UUID
 

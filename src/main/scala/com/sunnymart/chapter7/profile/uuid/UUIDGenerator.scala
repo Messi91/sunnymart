@@ -1,4 +1,4 @@
-package com.sunnymart.chapter4.profile.uuid
+package com.sunnymart.chapter7.profile.uuid
 
 import java.util.UUID
 

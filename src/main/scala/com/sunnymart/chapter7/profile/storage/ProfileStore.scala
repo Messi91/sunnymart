@@ -1,6 +1,6 @@
-package com.sunnymart.chapter4.profile.storage
+package com.sunnymart.chapter7.profile.storage
 
-import com.sunnymart.chapter4.profile.domain.Profile
+import com.sunnymart.chapter7.profile.domain.Profile
 
 import java.util.UUID
 import scala.concurrent.Future
