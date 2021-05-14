@@ -1,7 +1,7 @@
 package com.sunnymart.chapter7.profile.service
 
 import com.sunnymart.chapter7.profile.domain._
-import com.sunnymart.chapter7.profile.service.impl.AdvancedProfileService
+import com.sunnymart.chapter7.profile.service.impl.{AdvancedProfileService, BasicProfileService}
 import com.sunnymart.chapter7.profile.storage.ProfileStore
 import com.sunnymart.chapter7.profile.uuid.UUIDGenerator
 import org.mockito.scalatest.MockitoSugar

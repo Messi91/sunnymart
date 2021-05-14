@@ -22,8 +22,8 @@ class BasicProfileService(database: ProfileStore, uuidGenerator: UUIDGenerator) 
         emailAddress <- validateEmail(create.emailAddress)
       } yield Profile(uuidGenerator.generate(), firstName, lastName, dateOfBirth, emailAddress)) match {
         case error @ Left(_) => Future.successful(error)
-        case result @ Right(profile) => database.insert(profile).map(_ => result).recover {
-          case _ => Left(UnknownError)
+        case result @ Right(profile) => database.insert(profile).map(_ => result).recoverWith {
+          case _ => Future(Left(UnknownError))
         }
       }
     }
